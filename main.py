@@ -3,7 +3,13 @@ import time
 from selenium.webdriver.common.by import By
 import json
 import os.path
+import telegram
+import asyncio
+bot = telegram.Bot(token='7216096099:AAFN-2lH6-IAjVhdhDk5MXJy75p8KFsXiKg')
 
+async def main(item_id, name, price, description, link):
+    async with bot:
+        await bot.send_message(text=f'ID: {item_id}\n\nName: {name}\n\nPrice: {price}\n\nDescription: {description}\n\nLink: {link}', chat_id='984091159')
 
 
 def item_scraping(item_id, link):
@@ -15,6 +21,7 @@ def item_scraping(item_id, link):
     print(name.text, price.text)
     data[str(item_id)] = {"name" : name.text, "price": price.text, "description": description.text, "link": link}
     writeToJSONFile('./','savedData', data)
+    asyncio.run(main(item_id, name.text, price.text, description.text, link))
     print("__________%s____________"% i)
 
 
@@ -26,7 +33,6 @@ def writeToJSONFile(path, fileName, data):
 
 
 options = uc.ChromeOptions() 
-options.headless = False
 options.headless = False
 
 driver = uc.Chrome(options=options) 
@@ -53,7 +59,7 @@ while i!=0:
         driver.get("https://www.gumtree.com/search?featured_filter=false&q=&search_location=uk&search_category=for-sale&urgent_filter=false&sort=date&search_scope=false&photos_filter=false&min_price=0&max_price=1")
     time.sleep(2)
 
-    while pages!=2 and driver.find_elements(By.CSS_SELECTOR, "[data-q='pagination-forward-page']"):
+    while pages!=5 and driver.find_elements(By.CSS_SELECTOR, "[data-q='pagination-forward-page']"):
         if cookies == 1:
             driver.find_element(By.ID, "onetrust-accept-btn-handler").click()
             cookies = 0
